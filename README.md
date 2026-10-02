@@ -1,6 +1,6 @@
 # GeoLibre Layout Composer
 
-**A QGIS-style print layout designer for [GeoLibre](https://plugins.geolibre.app)** — design publication-ready maps with map frames, coordinate grids, legends, matplotlib-style color bars, LaTeX formulas, symbol catalogs and GeoPDF export, without leaving GeoLibre.
+**A QGIS-style print layout designer for [GeoLibre](https://plugins.geolibre.app)** — design publication-ready maps with map frames, coordinate grids, legends, matplotlib-style color bars, LaTeX formulas, icon catalogs and GeoPDF export, without leaving GeoLibre.
 
 ![Version](https://img.shields.io/badge/version-1.2.0-0d99ff)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
@@ -13,7 +13,7 @@
 ![svg2pdf.js](https://img.shields.io/badge/svg2pdf.js-2.2.4-8e44ad)
 ![Maki](https://img.shields.io/badge/icons-Maki%20CC0-1f78b4)
 ![Temaki](https://img.shields.io/badge/icons-Temaki%20CC0-1f78b4)
-![KLHK](https://img.shields.io/badge/symbology-SK%20MENLHK%20399%2F2024-02ad00)
+![KLHK layout](https://img.shields.io/badge/layout-SK%20MENLHK%20399%2F2024-02ad00)
 
 Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani/Geolibre-Laout-Composer>
 
@@ -46,15 +46,15 @@ Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani
 | **Map frames** | Live MapLibre map per frame, WYSIWYG at print scale, pan/zoom content (double-click), set or lock scale 1:n, rotation, zoom to layer, per-frame basemap (same as GeoLibre, streets, light, bright, satellite, topographic, none), **GeoLibre capture** mode that includes raster/COG layers. |
 | **Coordinate grids** | DMS · DM · DD · UTM (m or km, auto zone), lines/crosses/dots, zebra or inside/outside ticks, labels inside/outside, BT/LS or E/W–N/S. |
 | **Inset / key maps** | Extent box, location point or crosshair of another frame. |
-| **Legend** | Built from GeoLibre symbology (`match`, `step`, `interpolate`, rasters as ramps), editable labels/colors/order, manual entries, multi-column, LaTeX labels, KLHK and Rupabumi symbology from the catalog. |
+| **Legend** | Built from GeoLibre symbology (`match`, `step`, `interpolate`, rasters as ramps), editable labels/colors/order, manual entries, multi-column, LaTeX labels. |
 | **Color bar** | matplotlib-style: 23 colormaps + custom colors, reverse, continuous or classed, horizontal/vertical, **pointed or square extensions** (min/max/both), even/rounded/custom ticks with tick count, decimals, prefix/suffix, LaTeX title, reads min/max/colormap from GeoLibre raster (`rasterState.rescale`) or graduated layers. |
 | **Scale bars** | 11 styles incl. **dual units** (km below, paper cm / m / mi / nmi above), numeric 1:n. |
 | **North arrows** | 26 styles, follow map rotation, letter U/N. |
 | **Text & LaTeX** | Text boxes with variables (`{title}`, `{date}`, `{scale}`…), `$…$` math anywhere (text, legend, color bar title, markers), formula item with 104-symbol catalog, structure templates and recent formulas (MathJax 3, vector output). Quick text bar: font (incl. installed fonts), size, bold, italic, color, alignment, superscript/subscript. |
 | **Drawing** | Polyline, polygon, Bézier pen (click = corner, drag = curve), freehand (simplified + smoothed), arrow line; 33 shapes; fills: solid, gradient, hatch patterns (/ \ × − \| + ·); 6 dash styles. |
-| **Symbols** | Point markers with labels (12 symbols); **symbol catalog**: KLHK IGT symbology (355 colors in 55 themes + forest-function set), Rupabumi-style reference symbols, Maki (215) and Temaki (557) icons grouped by type. |
+| **Symbols** | Point markers with labels (12 symbols); **icon catalog** grouped by type: 51 original **Rupabumi pictograms** (lake, reservoir, river, flow direction, spring, waterfall, swamp, coastline, port, contour, index contour, mountain, volcano, peak, cave, forest, mangrove, plantation, rice field, road, railway, bridge, airport, settlement, government office, mosque, church, temple, school, hospital, cemetery, tower, lighthouse, boundaries, capitals…), Maki (215) and Temaki (557) icons. |
 | **Effects** | Drop shadow and frosted glass (blurs the map behind; reproduced in exports) on any item. |
-| **Editing** | Figma-style selection (handles, rotation knob, size badge), hover outlines, multi-select, groups, align/distribute, lock/hide, rename, context menu, undo/redo, copy/paste, layers list. Round color wheel with brightness, hex, eyedropper, palette and recent colors. Light theme and soft neutral dark theme that follow GeoLibre. |
+| **Editing** | Top-bar insert menus (Text, Draw, Shape, Image, Symbols, Scale bar), contextual quick bar (text formatting; map zoom in/out, fit layers, zoom to layer, previous/next extent, scale), Move-content tool, item search, Figma-style selection (handles, rotation knob, size badge), hover outlines, multi-select, groups, align/distribute, lock/hide, rename, context menu, undo/redo, copy/paste, layers list. Round color wheel with brightness, hex, eyedropper, palette and recent colors. Light theme and soft neutral dark theme that follow GeoLibre. |
 | **Layouts & templates** | Several layouts per project, autosave, save/open `.layout.json`, **save your own templates** and start new layouts from them (maps re-framed on the current GeoLibre view). |
 | **Export** | PNG/JPG (75–600 dpi, page/white/transparent background), raster PDF, **vector PDF**, **GeoPDF** (every map frame georeferenced, WGS 84), SVG. |
 
@@ -68,7 +68,7 @@ Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani
 
 1. Pick a **page size** on the *Page* tab (catalog button).
 2. Choose **Map** in the tool rail and drag a frame on the page; set the scale or double-click to pan its content.
-3. Add **Legend**, **Scale**, **North**, **Title**, **Color bar**, **Symbols** — each item's settings appear on the right.
+3. Add **Legend**, **Color bar** and **North** from the left rail, and **Text, Draw, Shape, Image, Symbols, Scale bar** from the top bar — each item's settings appear on the right.
 4. **Export** (top right) → PNG, PDF, Vector PDF, GeoPDF or SVG.
 
 ## Architecture
@@ -84,7 +84,7 @@ flowchart LR
     UI[Editor UI<br/>tool rail · canvas · rulers · panels]
     Items[Item renderers → SVG in mm<br/>map · legend · color bar · scale · north · text · LaTeX · shapes · paths · markers · icons · tables]
     Maps[Live map frames<br/>copied MapLibre style]
-    Cat[Catalogs<br/>KLHK symbology · Rupabumi · Maki · Temaki · paper sizes · colormaps]
+    Cat[Catalogs<br/>Rupabumi pictograms · Maki · Temaki · paper sizes · colormaps]
     Exp[Export<br/>PNG · JPG · PDF · Vector PDF · GeoPDF · SVG]
   end
   GL --> API --> Core
@@ -142,7 +142,7 @@ classDiagram
 
 ## KLHK cartographic rules
 
-The symbol catalog and the example layout follow **Keputusan Menteri LHK No. 399 Tahun 2024** (Spesifikasi Penyajian IGT LHK):
+The example layout follows **Keputusan Menteri LHK No. 399 Tahun 2024** (Spesifikasi Penyajian IGT LHK):
 
 | Element | Rule (SK 399/2024) | In Layout Composer |
 |---|---|---|
@@ -152,16 +152,17 @@ The symbol catalog and the example layout follow **Keputusan Menteri LHK No. 399
 | Scale | Numeric and bar; key map numeric only | Scale bar + `Scale {scale}` text |
 | North arrow | Arrow pointing up with "U" | North arrow, letter U |
 | Projection note | System, coordinates, datum (WGS 1984/SRGI) | Text block |
-| Forest functions | KSA/KPA 173 63 255 · HL 2 173 0 · HPT 138 242 0 · HP 255 255 0 · HPK 255 94 255 · APL 255 255 255 | Catalog → KLHK → *Add Kawasan Hutan legend set* |
+| Forest functions | KSA/KPA 173 63 255 · HL 2 173 0 · HPT 138 242 0 · HP 255 255 0 · HPK 255 94 255 · APL 255 255 255 | Layer colors in the example; legend built automatically |
 | Paper size | Minimum sizes per scale (Table 1) | Page size catalog → Indonesia |
 
-The other 55 themes in the catalog were extracted automatically from the SK's symbology tables (`tools/build_catalog.py`); check them against the SK before official use. Rupabumi feature symbols are approximations — the binding specification is **SNI 8743:2019**.
+The Rupabumi pictograms are original illustrative icons for layouts; for official topographic symbology follow **SNI 8743:2019**.
 
 ## Keyboard shortcuts
 
 | Keys | Action |
 |---|---|
-| `V` / `H` | Select / pan tool (or hold `Space`) |
+| `V` / `H` / `C` | Select / pan canvas (or hold `Space`) / move map content |
+| Shift + 1 / Shift + 2 | Fit page / zoom to selection |
 | Ctrl + scroll, Ctrl + `+` / `−` / `0` | Zoom canvas / fit page |
 | Arrows (Shift ×10, Alt ×0.1) | Nudge 1 mm |
 | Ctrl + Z / Y | Undo / redo |
@@ -182,14 +183,14 @@ src/            sources, concatenated in order into plugin/index.js
   04-items.js       item types and SVG renderers
   04b-colorbar.js   matplotlib-style color bar + colormaps
   04c-latex.js      MathJax formulas, symbol catalog
-  04d…04h           fills/paths, dual scale bar, effects/markers, catalog data, catalog UI
+  04d…04i           fills/paths, dual scale bar, effects/markers, icon catalog data/UI, Rupabumi pictograms
   05-maps.js        MapLibre frames, legend from styles, capture
   06-ui.js, 06b, 06c   editor shell, interactions, draw tools, templates
   07-props.js, 07b, 07c  property panels, color wheel + quick text bar, page sizes
   08-export.js      PNG/JPG/PDF/vector PDF/GeoPDF/SVG
   09-plugin.js      GeoLibre plugin entry
 plugin/         plugin.json, index.js (built), style.css
-tools/          build_catalog.py (KLHK + icon catalog), icon name lists
+tools/          build_catalog.py (groups Maki/Temaki icons by type), icon name lists
 test/           index.html and klhk.html harnesses (MapLibre + mock GeoLibre API)
 examples/       sample layouts
 ```
@@ -210,15 +211,15 @@ Builds `plugin/index.js` and `geolibre-layout-composer.zip`. To test without Geo
 | MathJax 3.2.2 | LaTeX → SVG (loaded on first use) | [mathjax.org](https://www.mathjax.org), jsDelivr | Apache-2.0 |
 | jsPDF 2.5.1 | PDF / GeoPDF output (loaded on export) | [github.com/parallax/jsPDF](https://github.com/parallax/jsPDF), cdnjs | MIT |
 | svg2pdf.js 2.2.4 | Vector PDF (loaded on export) | [github.com/yWorks/svg2pdf.js](https://github.com/yWorks/svg2pdf.js), jsDelivr | MIT |
-| Maki 8.2.0 icons | Symbol catalog | [github.com/mapbox/maki](https://github.com/mapbox/maki) | CC0-1.0 |
-| Temaki 5.13.0 icons | Symbol catalog | [github.com/rapideditor/temaki](https://github.com/rapideditor/temaki) | CC0-1.0 |
-| UI icons, north arrows, shapes, scale bars, markers | Editor and layout items | Original inline SVG drawn for this project | MIT (this project) |
+| Maki 8.2.0 icons | Icon catalog | [github.com/mapbox/maki](https://github.com/mapbox/maki) | CC0-1.0 |
+| Temaki 5.13.0 icons | Icon catalog | [github.com/rapideditor/temaki](https://github.com/rapideditor/temaki) | CC0-1.0 |
+| UI icons, north arrows, shapes, scale bars, markers, Rupabumi pictograms | Editor and layout items | Original inline SVG drawn for this project | MIT (this project) |
 | GeoPDF writer | ISO 32000 `/VP /Measure /GEO` | Ported from GIS Consultant Studio (same author) | MIT |
 | Viridis, Plasma, Inferno, Magma, Cividis | Colormaps | Matplotlib (van der Walt & Smith; Nuñez et al.) | CC0 |
 | Turbo | Colormap | Google AI (Anton Mikhailov) | Apache-2.0 |
 | Spectral, RdYlGn, RdYlBu, RdBu, BrBG, YlGn, YlOrRd, Blues, Greens, Oranges, Reds, Purples, Greys | Colormaps | ColorBrewer — Cynthia Brewer | Apache-2.0 |
 | Coolwarm, Jet, Terrain, Gray | Colormaps | Matplotlib (Coolwarm: K. Moreland) | Matplotlib license (BSD-style) |
-| KLHK symbology colors | Symbol catalog, legend presets | Keputusan Menteri LHK No. 399/2024 (public regulation) | Public regulation |
+| KLHK cartographic rules and forest-function colors | Example layout | Keputusan Menteri LHK No. 399/2024 (public regulation) | Public regulation |
 | Basemap styles in map frames | Optional per-frame basemaps | OpenFreeMap styles; data © OpenStreetMap contributors | Styles BSD-3-Clause / data ODbL-1.0 |
 | Satellite / topographic raster basemaps | Optional per-frame basemaps | Esri World Imagery / World Topo Map tile services | Esri terms of use — attribute the provider when publishing |
 | Fonts | Text | System fonts and fonts installed on your computer (none bundled) | Their own licenses |

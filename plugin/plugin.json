@@ -8,6 +8,6 @@
   "license": "MIT",
   "homepage": "https://github.com/Defani/Geolibre-Laout-Composer",
   "tags": ["cartography", "layout", "print", "export", "pdf", "geopdf", "legend", "colorbar", "latex"],
-  "description": "QGIS-style print layout designer: page-size catalog (ISO, US, KLHK, posters, presentation, social media) in mm/cm/in/pt/px, live map frames with locked scale and GeoLibre capture, DMS/DD/UTM grids, inset maps, auto legends, matplotlib-style color bars (pointed/square ends, tick control, raster ranges), dual-unit scale bars, 26 north arrows, LaTeX formulas, drawing tools (polyline, polygon, Bézier, freehand), shapes with gradient/hatch fills, drop shadow and frosted glass, symbol catalog (KLHK SK 399/2024 symbology, Rupabumi styles, Maki and Temaki icons), user templates, and PNG/JPG/PDF/vector PDF/GeoPDF/SVG export.",
+  "description": "QGIS-style print layout designer: page-size catalog (ISO, US, KLHK, posters, presentation, social media) in mm/cm/in/pt/px, live map frames with locked scale and GeoLibre capture, DMS/DD/UTM grids, inset maps, auto legends, matplotlib-style color bars (pointed/square ends, tick control, raster ranges), dual-unit scale bars, 26 north arrows, LaTeX formulas, drawing tools (polyline, polygon, Bézier, freehand), shapes with gradient/hatch fills, drop shadow and frosted glass, icon catalog (original Rupabumi pictograms, Maki and Temaki icons), user templates, and PNG/JPG/PDF/vector PDF/GeoPDF/SVG export.",
   "engines": ["maplibre"]
 }

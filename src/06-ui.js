@@ -85,19 +85,64 @@ const TOOLS = [
   { id: "inset", icon: "inset", short: "Inset", label: "Add inset / key map" },
   { id: "legend", icon: "list", short: "Legend", label: "Add legend" },
   { id: "colorbar", icon: "colorbar", short: "Color bar", label: "Add color bar" },
-  { id: "scalebar", icon: "scalebar", short: "Scale", label: "Add scale bar", gallery: "scalebar" },
   { id: "north", icon: "north", short: "North", label: "Add north arrow", gallery: "north" },
-  { sep: true },
-  { id: "title", icon: "title", short: "Title", label: "Add title" },
-  { id: "text", icon: "text", short: "Text", label: "Add text box" },
-  { id: "table", icon: "table", short: "Table", label: "Add table / info box" },
-  { id: "image", icon: "image", short: "Image", label: "Add image / logo" },
-  { id: "shape", icon: "shape", short: "Shape", label: "Add shape or line", gallery: "shape" },
-  { id: "pen", icon: "pen", short: "Draw", label: "Draw: polyline, polygon, Bézier pen, freehand, arrow line", gallery: "draw" },
-  { id: "marker", icon: "marker", short: "Marker", label: "Add point marker with label", gallery: "marker" },
-  { id: "catalog", icon: "library", short: "Symbols", label: "Symbol catalog: KLHK symbology, Rupabumi styles, Maki & Temaki icons", action: (b) => openCatalog(b) },
-  { id: "latex", icon: "sigma", short: "Formula", label: "Add LaTeX formula" },
 ];
+
+// Insert menus in the top bar: each opens a small menu or gallery, then arms a tool.
+const INSERT_MENUS = [
+  {
+    id: "text", icon: "text", label: "Text", tools: ["title", "text", "table", "latex"],
+    items: [
+      ["title", "title", "Title", "Large centered heading"],
+      ["text", "text", "Text box", "Paragraph with variables and $…$ math"],
+      ["table", "table", "Table / info box", "Rows and columns, e.g. a title block"],
+      ["latex", "sigma", "Formula (LaTeX)", "MathJax formula"],
+    ],
+  },
+  { id: "draw", icon: "pen", label: "Draw", tools: ["pen"], gallery: "draw", tool: "pen" },
+  { id: "shape", icon: "shape", label: "Shape", tools: ["shape"], gallery: "shape", tool: "shape" },
+  { id: "image", icon: "image", label: "Image", tools: ["image"], tool: "image" },
+  { id: "symbols", icon: "marker", label: "Symbols", tools: ["marker"], symbols: true },
+  { id: "scalebar", icon: "scalebar", label: "Scale bar", tools: ["scalebar"], gallery: "scalebar", tool: "scalebar" },
+];
+function buildInsertBar() {
+  const grp = el("div", { class: `${NS}-grp ${NS}-insert` });
+  for (const m of INSERT_MENUS) {
+    const b = el("button", { type: "button", class: `${NS}-ins`, "data-tools": m.tools.join(" "), title: m.label, html: `${icon(m.icon, 16)}<span>${esc(m.label)}</span>${m.tool === "image" ? "" : '<svg class="glc-caret" width="8" height="8" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>'}` });
+    b.addEventListener("click", () => {
+      if (m.tool === "image") return setTool("image");
+      if (m.gallery) return openToolGallery({ id: m.tool, gallery: m.gallery }, b);
+      if (m.symbols) return openSymbolsMenu(b);
+      const list = el("div", { class: `${NS}-menu` });
+      for (const [tool, ic, name, hint] of m.items) {
+        const it = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon(ic, 15)}<span>${esc(name)}</span><small>${esc(hint)}</small>` });
+        it.addEventListener("click", () => {
+          closePopover();
+          setTool(tool);
+        });
+        list.appendChild(it);
+      }
+      popoverAt(b, list);
+    });
+    grp.appendChild(b);
+  }
+  return grp;
+}
+function openSymbolsMenu(anchor) {
+  const body = el("div", {},
+    el("div", { class: `${NS}-ptitle` }, "Point markers"),
+    galleryGrid("marker", null, (id) => {
+      closePopover();
+      setTool("marker", id);
+    }),
+    el("div", { class: `${NS}-msep` }),
+  );
+  const cat = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon("library", 15)}<span>Icon catalog…</span><small>Rupabumi pictograms · Maki · Temaki</small>` });
+  cat.addEventListener("click", () => openCatalog(anchor));
+  body.appendChild(cat);
+  popoverAt(anchor, body, `${NS}-galpop`);
+}
+
 
 const EXPORT_FORMATS = [
   ["png", "PNG"],
@@ -125,6 +170,7 @@ function buildShell() {
       iconBtn("trash", "Delete layout", () => deleteLayout()),
     ),
     el("div", { class: `${NS}-grp` }, iconBtn("undo", "Undo (Ctrl+Z)", undo), iconBtn("redo", "Redo (Ctrl+Y)", redo)),
+    buildInsertBar(),
     el("div", { class: `${NS}-grp` },
       iconBtn("zout", "Zoom out (Ctrl+−)", () => setZoom(S.zoom / 1.2)),
       zoomLbl,
@@ -326,6 +372,7 @@ function setTool(id, variant) {
   S.tool = id;
   S.toolVariant = variant || null;
   for (const b of S.ui.tools.querySelectorAll(`.${NS}-tool`)) b.classList.toggle("active", b.dataset.tool === id);
+  for (const b of S.ui.root.querySelectorAll(`.${NS}-ins`)) b.classList.toggle("active", b.dataset.tools.split(" ").includes(id));
   S.ui.canvas.dataset.tool = id;
   const hints = {
     select: "Click to select · Shift+click to multi-select · Double-click a map to pan its content · Arrows = nudge 1 mm (Shift 10 mm)",

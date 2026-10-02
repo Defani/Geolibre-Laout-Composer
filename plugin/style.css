@@ -1771,9 +1771,9 @@
   width: 18px;
   height: 18px;
 }
-html.dark .glc-iconbtn img,
-html[data-theme="dark"] .glc-iconbtn img,
-body.dark .glc-iconbtn img {
+html.dark .glc-remote img,
+html[data-theme="dark"] .glc-remote img,
+body.dark .glc-remote img {
   filter: invert(1);
 }
 .glc-iconbtn:hover {
@@ -1915,4 +1915,62 @@ html.dark .glc-root .glc-toast,
 .glc-itemsearch .glc-input {
   width: 100%;
   height: 26px;
+}
+
+.glc-rbigrid {
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+}
+.glc-rbigrid .glc-iconbtn {
+  height: auto;
+  min-height: 58px;
+  padding: 6px 2px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--glc-fg);
+}
+.glc-rbigrid .glc-iconbtn small {
+  font-size: 9.5px;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--glc-muted-fg);
+}
+
+/* ---------- insert menus in the top bar */
+.glc-insert {
+  gap: 1px;
+}
+.glc-ins {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--glc-radius);
+  background: transparent;
+  cursor: pointer;
+  color: var(--glc-fg);
+  white-space: nowrap;
+  font-weight: 500;
+  transition: background var(--glc-ease), color var(--glc-ease);
+}
+.glc-ins:hover {
+  background: var(--glc-accent);
+}
+.glc-ins.active {
+  color: var(--glc-sel);
+}
+.glc-ins .glc-caret {
+  opacity: 0.55;
+}
+.glc-menuitem small {
+  margin-left: auto;
+  padding-left: 12px;
+}
+@media (max-width: 1500px) {
+  .glc-ins span {
+    display: none;
+  }
 }

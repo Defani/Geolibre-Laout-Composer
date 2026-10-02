@@ -470,7 +470,7 @@ function itemProps(item) {
         ]),
         section("Entries", [
           entriesBox,
-          el("div", { class: `${NS}-btnrow` }, addManual, btn("Symbol catalog…", (e) => openCatalog(e.currentTarget, { legend: item }), { iconName: "library" })),
+          addManual,
           fCheck(item, P("showGroups"), "Show group headings (classified layer names)"),
           fCheck(item, P("autoSync"), "Auto-sync when the composer opens"),
           fCheck(item, P("autoHeight"), "Box height follows content", { after: () => { refreshCanvas(); renderSelection(); } }),
@@ -695,7 +695,7 @@ function itemProps(item) {
     case "icon":
       out.push(
         section("Icon", [
-          el("p", { class: `${NS}-muted` }, `${CATALOG.iconSets[p.set]?.label || p.set} · ${p.name} (CC0)`),
+          el("p", { class: `${NS}-muted` }, `${ICON_SET_LABELS[p.set] || p.set} · ${p.name}${p.set === "rbi" ? "" : " (CC0)"}`),
           row("Color", fColor(item, P("color"))),
           row("Label", fText(item, P("label"), { placeholder: "Optional label" })),
           p.label ? row("Font", fFont(item, P("font"))) : null,
