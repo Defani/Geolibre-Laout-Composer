@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Layout Composer — uji coba</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+<script>document.write('<link rel="stylesheet" href="../plugin/style.css?v=' + Date.now() + '" />')</script>
+<style>
+  /* GeoLibre-like shadcn tokens so the composer themes as it would in the app */
+  :root { --background: 0 0% 100%; --foreground: 222 47% 11%; --card: 210 20% 98%; --border: 214 32% 88%; --muted: 210 40% 96%; --muted-foreground: 215 16% 47%; --accent: 210 40% 94%; --primary: 221 83% 53%; --primary-foreground: 0 0% 100%; }
+  html.dark { --background: 222 47% 8%; --foreground: 210 40% 96%; --card: 222 40% 11%; --border: 217 25% 22%; --muted: 217 30% 15%; --muted-foreground: 215 20% 65%; --accent: 217 30% 18%; --primary: 217 91% 60%; --primary-foreground: 0 0% 100%; }
+  html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+  #map { position: absolute; inset: 40px 0 0 0; }
+  #bar { height: 40px; display: flex; gap: 8px; align-items: center; padding: 0 12px; border-bottom: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<div id="bar"><b>GeoLibre (simulasi)</b><button id="open">Buka Layout Composer</button><button id="dark">Gelap/Terang</button></div>
+<div id="map"></div>
+<script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+<script type="module">
+  const map = new maplibregl.Map({ container: "map", style: "https://tiles.openfreemap.org/styles/liberty", center: [106.83, -6.4], zoom: 9.3, preserveDrawingBuffer: true });
+  // sample user layers: categorized polygons, a line and points
+  const polys = { type: "FeatureCollection", features: [] };
+  const kelas = ["Hutan", "Sawah", "Permukiman", "Perkebunan"];
+  let k = 0;
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) {
+    const x = 106.55 + i * 0.13, y = -6.65 + j * 0.15;
+    polys.features.push({ type: "Feature", properties: { kelas: kelas[k++ % 4] }, geometry: { type: "Polygon", coordinates: [[[x, y], [x + 0.12, y], [x + 0.12, y + 0.13], [x, y + 0.13], [x, y]]] } });
+  }
+  const sungai = { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[106.5, -6.7], [106.7, -6.5], [106.85, -6.45], [107.1, -6.2]] } }] };
+  const titik = { type: "FeatureCollection", features: [[106.8, -6.6], [106.9, -6.35], [106.65, -6.3]].map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: c } })) };
+  const layers = [
+    { id: "tutupan-lahan", name: "Tutupan Lahan 2024", type: "geojson", visible: true },
+    { id: "sungai", name: "Sungai Utama", type: "geojson", visible: true },
+    { id: "titik-sampel", name: "Titik Sampel", type: "geojson", visible: true },
+  ];
+  map.once("style.load", () => {
+    map.addSource("tutupan-lahan", { type: "geojson", data: polys });
+    map.addLayer({ id: "tutupan-lahan-fill", type: "fill", source: "tutupan-lahan", paint: { "fill-color": ["match", ["get", "kelas"], "Hutan", "#15803d", "Sawah", "#facc15", "Permukiman", "#dc2626", "Perkebunan", "#84cc16", "#999999"], "fill-opacity": 0.7 } });
+    map.addLayer({ id: "tutupan-lahan-line", type: "line", source: "tutupan-lahan", paint: { "line-color": "#334155", "line-width": 0.8 } });
+    map.addSource("sungai", { type: "geojson", data: sungai });
+    map.addLayer({ id: "sungai-line", type: "line", source: "sungai", paint: { "line-color": "#2563eb", "line-width": 3 } });
+    map.addSource("titik-sampel", { type: "geojson", data: titik });
+    map.addLayer({ id: "titik-sampel-circle", type: "circle", source: "titik-sampel", paint: { "circle-color": "#f97316", "circle-radius": 6, "circle-stroke-color": "#fff", "circle-stroke-width": 1.5 } });
+  });
+  const app = {
+    getMap: () => map,
+    listLayers: () => layers,
+    addMapControl: (c, pos) => map.addControl(c, pos),
+    removeMapControl: (c) => map.removeControl(c),
+    registerToolbarMenu: (m) => { console.log("menu registered", m.label); return () => {}; },
+    getProjectSnapshot: () => ({ name: "Peta Tutupan Lahan Kabupaten Bogor" }),
+  };
+  const mod = await import("../plugin/index.js?v=" + Date.now());
+  mod.plugin.activate(app);
+  window.__app = app;
+  document.getElementById("open").onclick = () => window.GeoLibreLayoutComposer.open();
+  document.getElementById("dark").onclick = () => document.documentElement.classList.toggle("dark");
+</script>
+</body>
+</html>

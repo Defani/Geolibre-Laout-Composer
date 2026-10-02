@@ -1,0 +1,5 @@
+test/data/
+_lines.txt
+_strings.txt
+__pycache__/
+.claude/
