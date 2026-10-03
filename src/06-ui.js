@@ -47,6 +47,8 @@ const ICON_PATHS = {
   plus: "M12 5v14M5 12h14",
   fitlayers: "M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4M8 9l4-2 4 2v6l-4 2-4-2z",
   fitsel: "M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4M8 8h8v8H8z",
+  dockleft: "M3 4h18v16H3zM9 4v16M5 8h2M5 11h2",
+  dockright: "M3 4h18v16H3zM15 4v16M17 8h2M17 11h2",
   layout: "M3 3h18v18H3zM6 6h9v8H6zM18 7v4M6 17h5M14 17h4",
   rename: "M4 20h4L19 9l-4-4L4 16zM13 7l4 4",
   colorbar: "M3 9h18v6H3zM3 9l-2 3 2 3M21 9l2 3-2 3M7 18v2M12 18v2M17 18v2",
@@ -137,7 +139,7 @@ function openSymbolsMenu(anchor) {
     }),
     el("div", { class: `${NS}-msep` }),
   );
-  const cat = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon("library", 15)}<span>Icon catalog…</span><small>Rupabumi pictograms · Maki · Temaki</small>` });
+  const cat = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon("library", 15)}<span>Icon catalog…</span><small>Maki · Temaki (CC0)</small>` });
   cat.addEventListener("click", () => openCatalog(anchor));
   body.appendChild(cat);
   popoverAt(anchor, body, `${NS}-galpop`);
@@ -161,7 +163,8 @@ function buildShell() {
   S.exportFmt = S.exportFmt || "png";
   S.exportDpi = S.exportDpi || 300;
   top.append(
-    el("div", { class: `${NS}-brand`, html: `${icon("layout", 18)}<span>Layout Composer</span>` }),
+    iconBtn("dockleft", "Show / hide the Items panel", () => toggleDock("left"), `${NS}-docktog`),
+    el("div", { class: `${NS}-brand`, title: "Layout Composer", html: `${icon("layout", 18)}<span>Layout Composer</span>` }),
     el("div", { class: `${NS}-grp` },
       layoutSel,
       iconBtn("plus", "New layout / templates", (e) => openNewMenu(e.currentTarget)),
@@ -178,13 +181,13 @@ function buildShell() {
       iconBtn("fit", "Fit page (Ctrl+0)", () => fitPage()),
       iconBtn("fitsel", "Zoom to selection (Shift+2)", () => zoomToSelection()),
     ),
-    el("div", { class: `${NS}-quick`, style: { display: "none" } }),
     el("div", { class: `${NS}-spacer` }),
     el("div", { class: `${NS}-grp` },
       iconBtn("open", "Open layout file (.json)", () => importJSON()),
       iconBtn("save", "Save layout file (.json)", () => exportJSON()),
     ),
     el("button", { type: "button", class: `${NS}-btn ${NS}-primary`, html: `${icon("download")}<span>Export</span>`, onclick: (e) => openExportMenu(e.currentTarget) }),
+    iconBtn("dockright", "Show / hide the Properties panel", () => toggleDock("right"), `${NS}-docktog`),
     iconBtn("close", "Close Layout Composer", () => closeComposer(), `${NS}-closebtn`),
   );
 
@@ -234,6 +237,7 @@ function buildShell() {
   );
 
   const stage = el("main", { class: `${NS}-stage` },
+    el("div", { class: `${NS}-quick`, style: { display: "none" } }),
     el("div", { class: `${NS}-rcorner` }),
     el("canvas", { class: `${NS}-rtop` }),
     el("canvas", { class: `${NS}-rleft` }),
@@ -253,7 +257,7 @@ function buildShell() {
   root.append(top, el("div", { class: `${NS}-body` }, tools, left, stage, right), status, el("div", { class: `${NS}-toasts` }));
 
   S.ui.root = root;
-  S.ui.quick = top.querySelector(`.${NS}-quick`);
+  S.ui.quick = stage.querySelector(`.${NS}-quick`);
   S.ui.scroll = stage.querySelector(`.${NS}-scroll`);
   S.ui.canvas = stage.querySelector(`.${NS}-canvas`);
   S.ui.paper = stage.querySelector(`.${NS}-paper`);
@@ -282,8 +286,11 @@ function buildShell() {
   S.ui.canvas.addEventListener("pointermove", onHoverMove);
   S.ui.canvas.addEventListener("contextmenu", openContextMenu);
   bindRulerGuides();
+  let lastW = 0;
   const ro = new ResizeObserver(() => {
-    if (S.pendingFit && S.doc) fitPage();
+    const w = stage.clientWidth;
+    if ((S.pendingFit || (lastW && Math.abs(w - lastW) > 40 && S.autoFit)) && S.doc) fitPage();
+    lastW = w;
     drawRulers();
   });
   ro.observe(stage);
@@ -465,6 +472,7 @@ function openToolGallery(tool, anchor) {
 // ---------------------------------------------------------------- zoom / scroll
 const CANVAS_PAD = 260;
 function setZoom(z, anchor) {
+  S.autoFit = false;
   const sc = S.ui.scroll;
   const old = S.zoom;
   z = clamp(z, 0.4, 30);
@@ -485,6 +493,7 @@ function setZoom(z, anchor) {
   renderGuides();
 }
 function fitPage() {
+  S.autoFit = true;
   const sc = S.ui.scroll;
   const pg = S.doc.page;
   // Not laid out yet (overlay just mounted or window hidden): fit once it has a size.
@@ -495,7 +504,7 @@ function fitPage() {
     return;
   }
   S.pendingFit = false;
-  const z = Math.min((sc.clientWidth - 60) / pg.width, (sc.clientHeight - 60) / pg.height);
+  const z = Math.min((sc.clientWidth - 48) / pg.width, (sc.clientHeight - 48) / pg.height);
   S.zoom = clamp(z, 0.4, 30);
   layoutCanvas();
   sc.scrollLeft = CANVAS_PAD + (pg.width * S.zoom) / 2 - sc.clientWidth / 2;
@@ -512,6 +521,8 @@ function layoutCanvas() {
   S.ui.canvas.style.width = `${pg.width * Z + CANVAS_PAD * 2}px`;
   S.ui.canvas.style.height = `${pg.height * Z + CANVAS_PAD * 2}px`;
   Object.assign(S.ui.paper.style, { left: `${CANVAS_PAD}px`, top: `${CANVAS_PAD}px`, width: `${pg.width * Z}px`, height: `${pg.height * Z}px` });
+  // page background, neatline and margin guides scale with the canvas
+  renderPageDecor();
 }
 function onWheel(e) {
   if (S.contentMode && e.target.closest(`.${NS}-item[data-id="${S.contentMode}"]`)) return; // map handles its own wheel

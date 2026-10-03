@@ -8,7 +8,7 @@
 
 const PLUGIN_ID = "geolibre-layout-composer";
 const PLUGIN_NAME = "Layout Composer";
-const PLUGIN_VERSION = "1.2.0";
+const PLUGIN_VERSION = "1.3.0";
 const NS = "glc"; // CSS class prefix
 const STORE_KEY = "glc:layouts:v1";
 const PX96 = 96 / 25.4; // CSS px per mm at 96 dpi
@@ -2911,46 +2911,18 @@ async function addIconItem(set, name) {
   }
 }
 
-// ---- catalog browser: Rupabumi pictograms (inline) + Maki / Temaki (CC0, jsDelivr)
-const ICON_SET_LABELS = { rbi: "Rupabumi", maki: "Maki", temaki: "Temaki" };
-function addRbiIcon(ic) {
-  const pg = S.doc.page;
-  const item = newItem("icon", pg.width / 2 - 5, pg.height / 2 - 5);
-  item.name = ic.name;
-  const color = /danau|sungai|air|rawa|laut|pantai|waduk|pelabuhan|dermaga/.test(ic.id) ? "#1f78b4" : /hutan|mangrove|kebun|sawah|semak|rumput/.test(ic.id) ? "#2e7d32" : /kontur|gunung|puncak|bukit|gua|lereng/.test(ic.id) ? "#8d5524" : "#111111";
-  Object.assign(item.props, { set: "rbi", name: ic.id, svg: ic.svg, viewBox: "0 0 24 24", color });
-  commit(() => S.doc.items.push(item));
-  select([item.id]);
-}
+// ---- catalog browser: Maki / Temaki (CC0, jsDelivr)
+const ICON_SET_LABELS = { maki: "Maki", temaki: "Temaki" };
 function openCatalog(anchor) {
   const tabs = el("div", { class: `${NS}-seg ${NS}-segfull` });
-  const search = el("input", { type: "search", class: `${NS}-input`, placeholder: "Search icons (danau, sungai, kontur, airport…)" });
+  const search = el("input", { type: "search", class: `${NS}-input`, placeholder: "Search icons (water, mountain, airport…)" });
   const body = el("div", { class: `${NS}-catbody` });
-  let tab = S.catalogTab && ICON_SET_LABELS[S.catalogTab] ? S.catalogTab : "rbi";
+  let tab = S.catalogTab && ICON_SET_LABELS[S.catalogTab] ? S.catalogTab : "maki";
   const draw = () => {
     S.catalogTab = tab;
     for (const b of tabs.children) b.classList.toggle("active", b.dataset.v === tab);
     body.innerHTML = "";
     const q = search.value.trim().toLowerCase();
-    if (tab === "rbi") {
-      body.append(el("p", { class: `${NS}-muted` }, "Topographic pictograms drawn for this plugin. Click to place; change the color on the right."));
-      const groups = [...new Set(RBI_ICONS.map((i) => i.group))];
-      for (const gname of groups) {
-        const list = RBI_ICONS.filter((i) => i.group === gname && (!q || i.name.toLowerCase().includes(q) || i.id.includes(q)));
-        if (!list.length) continue;
-        const grid = el("div", { class: `${NS}-icongrid ${NS}-rbigrid` });
-        for (const ic of list) {
-          const b = el("button", { type: "button", class: `${NS}-iconbtn`, title: ic.name, html: `<svg width="22" height="22" viewBox="0 0 24 24">${ic.svg}</svg><small>${esc(ic.name)}</small>` });
-          b.addEventListener("click", () => {
-            closePopover();
-            addRbiIcon(ic);
-          });
-          grid.appendChild(b);
-        }
-        body.appendChild(el("details", { class: `${NS}-catgrp`, open: true }, el("summary", {}, gname, el("small", {}, String(list.length))), grid));
-      }
-      return;
-    }
     const set = CATALOG.iconSets[tab];
     body.append(el("p", { class: `${NS}-muted` }, `${set.label} icons · ${set.license} (public domain). Click to place on the page.`));
     const order = ["Basic symbols", "Water & hydrology", "Terrain & nature", "Vegetation & forest", "Transport", "Government & public", "Health", "Education & culture", "Religion", "Tourism & recreation", "Sports", "Food & shops", "Utilities & industry", "Hazards & warnings", "Other"];
@@ -2982,70 +2954,6 @@ function openCatalog(anchor) {
   draw();
   return popoverAt(anchor, el("div", { class: `${NS}-catalog` }, el("div", { class: `${NS}-ptitle` }, "Icon catalog"), tabs, search, body), `${NS}-catpop`);
 }
-// ---------------------------------------------------------------- Rupabumi pictograms
-// Original topographic icons drawn for this plugin (24 × 24, currentColor) for
-// lakes, rivers, contours, relief, vegetation, transport and public buildings.
-const S_ = (d, w = 1.6) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
-const F_ = (d) => `<path d="${d}" fill="currentColor"/>`;
-const RBI_ICONS = [
-  // --- Perairan (hydrography)
-  { group: "Perairan", id: "danau", name: "Danau", svg: F_("M4 11c0-4 4-6 8-6s8 1.5 8 5.5-3 7.5-8 7.5-8-3-8-7z") + `<path d="M7 11.5c1-.8 2-.8 3 0s2 .8 3 0 2-.8 3 0M8 14.5c1-.8 2-.8 3 0s2 .8 3 0" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>` },
-  { group: "Perairan", id: "waduk", name: "Waduk / bendungan", svg: F_("M3 9c0-3 3-5 7-5h1v16h-1c-4 0-7-2-7-5z") + S_("M13 3v18M16 3v18", 2) + S_("M18 9c1.5 1 1.5 2 0 3s-1.5 2 0 3", 1.4) },
-  { group: "Perairan", id: "sungai", name: "Sungai", svg: S_("M3 4c5 1 4 5 8 6s4 5 10 10", 2.4) },
-  { group: "Perairan", id: "alur-sungai", name: "Alur / arah aliran sungai", svg: S_("M3 5c5 1 4 5 8 6s4 5 9 8", 1.8) + F_("M20.5 19.8l-5.2.6 1.8-1.9-.9-2.6z") },
-  { group: "Perairan", id: "anak-sungai", name: "Anak sungai", svg: S_("M4 20c3-3 5-4 8-4s5-3 8-12", 2) + S_("M12 16c-2-3-2-6-6-10", 1.2) },
-  { group: "Perairan", id: "mata-air", name: "Mata air", svg: `<circle cx="12" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>` + S_("M12 11V5M9 7l3-3 3 3", 1.6) },
-  { group: "Perairan", id: "air-terjun", name: "Air terjun", svg: F_("M3 4h10v3H3z") + S_("M8 7v10M11 7v12M5 7v8", 1.5) + S_("M3 20c2-1 4-1 6 0s4 1 6 0 4-1 6 0", 1.5) },
-  { group: "Perairan", id: "rawa", name: "Rawa", svg: S_("M3 19h18M6 19c0-3 0-5-1-7M6 19c0-3 1-5 2-6M6 19c0-2-1-4-2-5M17 19c0-3 0-5-1-7M17 19c0-3 1-5 2-6M17 19c0-2-1-4-2-5M10 15h4", 1.3) },
-  { group: "Perairan", id: "pantai", name: "Garis pantai", svg: F_("M3 3h7c-1 4 2 6 1 10s-3 5-2 8H3z") + S_("M14 7c1.5-1 3-1 4.5 0M14 12c1.5-1 3-1 4.5 0M14 17c1.5-1 3-1 4.5 0", 1.3) },
-  { group: "Perairan", id: "laut", name: "Laut", svg: S_("M3 8c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0M3 13c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0M3 18c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0", 1.4) },
-  { group: "Perairan", id: "pelabuhan", name: "Pelabuhan", svg: S_("M12 7v14M8 10h8M5 15c0 3.5 3 6 7 6s7-2.5 7-6", 1.7) + `<circle cx="12" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/>` },
-  { group: "Perairan", id: "dermaga", name: "Dermaga", svg: F_("M3 10h18v3H3z") + S_("M6 13v6M12 13v6M18 13v6", 1.6) + S_("M3 20c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0", 1.2) },
-  // --- Relief
-  { group: "Relief", id: "kontur", name: "Garis kontur", svg: S_("M12 4c5 0 8 3 8 7s-3 9-8 9-8-4-8-8 3-8 8-8z", 1.1) + S_("M12 7c3.5 0 5.5 2 5.5 4.5S15 17 12 17s-5.5-2.5-5.5-5 2-5 5.5-5z", 1.1) + S_("M12 10c1.8 0 3 1 3 2s-1 2.5-3 2.5-3-1-3-2 1-2.5 3-2.5z", 1.1) },
-  { group: "Relief", id: "kontur-indeks", name: "Kontur indeks", svg: S_("M3 18c4-2 6-6 9-6s5 4 9 6", 2.2) + S_("M3 13c4-2 6-6 9-6s5 4 9 6", 1) + S_("M3 22c4-2 6-4 9-4s5 2 9 4", 1) },
-  { group: "Relief", id: "gunung", name: "Gunung", svg: F_("M2 20L9 7l3.5 5L15 9l7 11z") },
-  { group: "Relief", id: "gunung-api", name: "Gunung api", svg: F_("M3 20l6-11h6l6 11z") + S_("M10 6c0-2 1-3 2-3M14 6c0-2-1-3-2-3M12 6V2", 1.4) },
-  { group: "Relief", id: "puncak", name: "Titik tinggi / puncak", svg: F_("M12 5l7 13H5z") + `<circle cx="12" cy="14" r="1.6" fill="#fff"/>` },
-  { group: "Relief", id: "bukit", name: "Bukit", svg: F_("M2 19c3-7 6-9 9-9s5 3 6 5c1-1 2-2 3-2s1.5 2 2 6z") },
-  { group: "Relief", id: "gua", name: "Gua", svg: F_("M2 20c1-8 5-13 10-13s9 5 10 13z") + `<path d="M8 20c0-4 2-7 4-7s4 3 4 7z" fill="#fff"/>` },
-  { group: "Relief", id: "lereng", name: "Lereng terjal", svg: S_("M3 18h18", 1.8) + S_("M5 18l1-5M9 18l1-6M13 18l1-6M17 18l1-5", 1.4) },
-  // --- Vegetasi
-  { group: "Vegetasi", id: "hutan", name: "Hutan", svg: F_("M7 3l4.5 7H9l3.5 5H8v4H6v-4H1.5L5 10H2.5z") + F_("M17 6l4 6h-2l3 4h-4v3h-2v-3h-4l3-4h-2z") },
-  { group: "Vegetasi", id: "mangrove", name: "Mangrove", svg: `<circle cx="12" cy="7" r="4.5" fill="currentColor"/>` + S_("M12 11v5M12 16l-4 4M12 16l4 4M12 14l-6 6M12 14l6 6", 1.4) + S_("M3 21h18", 1.2) },
-  { group: "Vegetasi", id: "perkebunan", name: "Perkebunan", svg: S_("M6 20v-8M18 20v-8M12 20v-8", 1.6) + F_("M6 12c-3 0-4-2-4-2s2-2 4-1c-1-2 0-4 0-4s2 1 2 4c2-1 4 1 4 1s-1 2-4 2z") + F_("M18 12c-3 0-4-2-4-2s2-2 4-1c-1-2 0-4 0-4s2 1 2 4c2-1 4 1 4 1s-1 2-4 2z") },
-  { group: "Vegetasi", id: "sawah", name: "Sawah", svg: S_("M3 21h18M3 15h18", 1) + S_("M6 15V11M5 12l1-1 1 1M12 15v-4M11 12l1-1 1 1M18 15v-4M17 12l1-1 1 1M9 21v-4M8 18l1-1 1 1M15 21v-4M14 18l1-1 1 1", 1.3) },
-  { group: "Vegetasi", id: "semak", name: "Semak belukar", svg: F_("M3 19c0-3 2-5 4-5 0-2 2-4 4-4s3 1 4 3c2 0 4 2 4 4v2z") },
-  { group: "Vegetasi", id: "padang-rumput", name: "Padang rumput / savana", svg: S_("M4 19l1-5 1 5M10 19l1-6 1 6M16 19l1-5 1 5M3 20h18", 1.3) },
-  // --- Transportasi
-  { group: "Transportasi", id: "jalan", name: "Jalan", svg: S_("M8 3L5 21M16 3l3 18", 2) + S_("M12 4v3M12 10v4M12 17v3", 1.6) },
-  { group: "Transportasi", id: "rel", name: "Jalan kereta api", svg: S_("M9 3v18M15 3v18", 1.4) + S_("M7 6h10M7 10h10M7 14h10M7 18h10", 1.6) },
-  { group: "Transportasi", id: "jembatan", name: "Jembatan", svg: S_("M2 11h20M2 15h20", 1.8) + S_("M5 15c1 3 3 5 7 5s6-2 7-5", 1.3) + S_("M4 8l2 3M20 8l-2 3", 1.4) },
-  { group: "Transportasi", id: "bandara", name: "Bandar udara", svg: F_("M21 15v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V8l-8 5v2l8-2.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-5.5z") },
-  { group: "Transportasi", id: "terminal", name: "Terminal", svg: F_("M5 4h14a1 1 0 0 1 1 1v12H4V5a1 1 0 0 1 1-1z") + `<path d="M6 6h12v6H6z" fill="#fff"/>` + `<circle cx="7.5" cy="19" r="1.5" fill="currentColor"/><circle cx="16.5" cy="19" r="1.5" fill="currentColor"/>` },
-  { group: "Transportasi", id: "stasiun", name: "Stasiun", svg: `<rect x="6" y="3" width="12" height="14" rx="3" fill="currentColor"/><path d="M8 6h8v5H8z" fill="#fff"/>` + S_("M8 21l2-4M16 21l-2-4", 1.6) },
-  // --- Bangunan & fasilitas
-  { group: "Bangunan & fasilitas", id: "permukiman", name: "Permukiman", svg: F_("M3 12l5-5 5 5v8H3z") + F_("M12 14l4.5-4.5L21 14v6h-9z") },
-  { group: "Bangunan & fasilitas", id: "kantor", name: "Kantor pemerintahan", svg: F_("M12 3l9 5H3z") + F_("M3 20h18v1.5H3z") + S_("M6 10v8M10 10v8M14 10v8M18 10v8", 2) },
-  { group: "Bangunan & fasilitas", id: "masjid", name: "Masjid", svg: F_("M12 4c3 2 5 4 5 7H7c0-3 2-5 5-7z") + F_("M6 12h12v8H6z") + F_("M3 9h2v11H3zM19 9h2v11h-2z") + `<path d="M10.5 20v-4a1.5 1.5 0 0 1 3 0v4z" fill="#fff"/>` },
-  { group: "Bangunan & fasilitas", id: "gereja", name: "Gereja", svg: F_("M11 2h2v3h2v2h-2v2l5 4v8H6v-8l5-4V7H9V5h2z") + `<path d="M10.5 21v-4a1.5 1.5 0 0 1 3 0v4z" fill="#fff"/>` },
-  { group: "Bangunan & fasilitas", id: "pura", name: "Pura / candi", svg: F_("M12 2l2 3h-4zM9 6h6l1 3H8zM7 10h10l1 3H6zM5 14h14v7H5z") + `<path d="M10.5 21v-4h3v4z" fill="#fff"/>` },
-  { group: "Bangunan & fasilitas", id: "sekolah", name: "Sekolah", svg: F_("M12 3l10 5-10 5L2 8z") + S_("M6 10.5V16c2 2 10 2 12 0v-5.5M21 8v6", 1.6) },
-  { group: "Bangunan & fasilitas", id: "rumah-sakit", name: "Rumah sakit / puskesmas", svg: `<rect x="3" y="3" width="18" height="18" rx="3" fill="currentColor"/>` + F_("M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4z").replace('fill="currentColor"', 'fill="#fff"') },
-  { group: "Bangunan & fasilitas", id: "makam", name: "Makam", svg: F_("M8 21V9a4 4 0 0 1 8 0v12z") + S_("M12 9v6M10 11h4", 1.4).replace('stroke="currentColor"', 'stroke="#fff"') + S_("M4 21h16", 1.4) },
-  { group: "Bangunan & fasilitas", id: "pasar", name: "Pasar", svg: F_("M3 9l2-5h14l2 5c0 1.5-1.2 2.5-2.5 2.5S16 10.5 16 9c0 1.5-1.8 2.5-4 2.5S8 10.5 8 9c0 1.5-1.2 2.5-2.5 2.5S3 10.5 3 9z") + F_("M5 13h14v8H5z") },
-  { group: "Bangunan & fasilitas", id: "menara", name: "Menara telekomunikasi", svg: S_("M12 8l-5 13M12 8l5 13M9 15h6M8 18h8", 1.5) + `<circle cx="12" cy="6" r="2" fill="currentColor"/>` + S_("M7 3a7 7 0 0 0 0 6M17 3a7 7 0 0 1 0 6", 1.3) },
-  { group: "Bangunan & fasilitas", id: "mercusuar", name: "Mercusuar", svg: F_("M10 6h4l1.5 14h-7z") + F_("M9.5 3h5v2h-5z") + S_("M4 4l3 1M20 4l-3 1M4 8l3-.5M20 8l-3-.5", 1.3) + S_("M6 21h12", 1.5) },
-  { group: "Bangunan & fasilitas", id: "pos-jaga", name: "Pos jaga hutan", svg: F_("M5 10l7-6 7 6z") + F_("M7 10h10v3H7z") + S_("M8 13v8M16 13v8M8 17h8", 1.6) },
-  // --- Batas & titik
-  { group: "Batas & titik", id: "batas-negara", name: "Batas negara", svg: S_("M2 12h5M9 12h1M12 12h5M19 12h3", 2.2) },
-  { group: "Batas & titik", id: "batas-provinsi", name: "Batas provinsi", svg: S_("M2 12h6M10 12h1M13 12h6M21 12h1", 1.6) },
-  { group: "Batas & titik", id: "batas-kabupaten", name: "Batas kabupaten", svg: S_("M2 12h4M8 12h1M11 12h4M17 12h1M20 12h2", 1.2) },
-  { group: "Batas & titik", id: "ibukota-provinsi", name: "Ibu kota provinsi", svg: `<rect x="5" y="5" width="14" height="14" fill="currentColor"/><rect x="9" y="9" width="6" height="6" fill="#fff"/>` },
-  { group: "Batas & titik", id: "ibukota-kabupaten", name: "Ibu kota kabupaten", svg: `<circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/>` },
-  { group: "Batas & titik", id: "titik-triangulasi", name: "Titik triangulasi", svg: S_("M12 4l8 15H4z", 1.6) + `<circle cx="12" cy="14" r="1.8" fill="currentColor"/>` },
-  { group: "Batas & titik", id: "titik-sampel", name: "Titik sampel / plot", svg: S_("M12 2v5M12 17v5M2 12h5M17 12h5", 1.6) + `<circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>` },
-];
 // ---------------------------------------------------------------- MapLibre bridge
 function mainMap() {
   try {
@@ -3580,6 +3488,8 @@ const ICON_PATHS = {
   plus: "M12 5v14M5 12h14",
   fitlayers: "M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4M8 9l4-2 4 2v6l-4 2-4-2z",
   fitsel: "M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4M8 8h8v8H8z",
+  dockleft: "M3 4h18v16H3zM9 4v16M5 8h2M5 11h2",
+  dockright: "M3 4h18v16H3zM15 4v16M17 8h2M17 11h2",
   layout: "M3 3h18v18H3zM6 6h9v8H6zM18 7v4M6 17h5M14 17h4",
   rename: "M4 20h4L19 9l-4-4L4 16zM13 7l4 4",
   colorbar: "M3 9h18v6H3zM3 9l-2 3 2 3M21 9l2 3-2 3M7 18v2M12 18v2M17 18v2",
@@ -3670,7 +3580,7 @@ function openSymbolsMenu(anchor) {
     }),
     el("div", { class: `${NS}-msep` }),
   );
-  const cat = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon("library", 15)}<span>Icon catalog…</span><small>Rupabumi pictograms · Maki · Temaki</small>` });
+  const cat = el("button", { type: "button", class: `${NS}-menuitem`, html: `${icon("library", 15)}<span>Icon catalog…</span><small>Maki · Temaki (CC0)</small>` });
   cat.addEventListener("click", () => openCatalog(anchor));
   body.appendChild(cat);
   popoverAt(anchor, body, `${NS}-galpop`);
@@ -3694,7 +3604,8 @@ function buildShell() {
   S.exportFmt = S.exportFmt || "png";
   S.exportDpi = S.exportDpi || 300;
   top.append(
-    el("div", { class: `${NS}-brand`, html: `${icon("layout", 18)}<span>Layout Composer</span>` }),
+    iconBtn("dockleft", "Show / hide the Items panel", () => toggleDock("left"), `${NS}-docktog`),
+    el("div", { class: `${NS}-brand`, title: "Layout Composer", html: `${icon("layout", 18)}<span>Layout Composer</span>` }),
     el("div", { class: `${NS}-grp` },
       layoutSel,
       iconBtn("plus", "New layout / templates", (e) => openNewMenu(e.currentTarget)),
@@ -3711,13 +3622,13 @@ function buildShell() {
       iconBtn("fit", "Fit page (Ctrl+0)", () => fitPage()),
       iconBtn("fitsel", "Zoom to selection (Shift+2)", () => zoomToSelection()),
     ),
-    el("div", { class: `${NS}-quick`, style: { display: "none" } }),
     el("div", { class: `${NS}-spacer` }),
     el("div", { class: `${NS}-grp` },
       iconBtn("open", "Open layout file (.json)", () => importJSON()),
       iconBtn("save", "Save layout file (.json)", () => exportJSON()),
     ),
     el("button", { type: "button", class: `${NS}-btn ${NS}-primary`, html: `${icon("download")}<span>Export</span>`, onclick: (e) => openExportMenu(e.currentTarget) }),
+    iconBtn("dockright", "Show / hide the Properties panel", () => toggleDock("right"), `${NS}-docktog`),
     iconBtn("close", "Close Layout Composer", () => closeComposer(), `${NS}-closebtn`),
   );
 
@@ -3767,6 +3678,7 @@ function buildShell() {
   );
 
   const stage = el("main", { class: `${NS}-stage` },
+    el("div", { class: `${NS}-quick`, style: { display: "none" } }),
     el("div", { class: `${NS}-rcorner` }),
     el("canvas", { class: `${NS}-rtop` }),
     el("canvas", { class: `${NS}-rleft` }),
@@ -3786,7 +3698,7 @@ function buildShell() {
   root.append(top, el("div", { class: `${NS}-body` }, tools, left, stage, right), status, el("div", { class: `${NS}-toasts` }));
 
   S.ui.root = root;
-  S.ui.quick = top.querySelector(`.${NS}-quick`);
+  S.ui.quick = stage.querySelector(`.${NS}-quick`);
   S.ui.scroll = stage.querySelector(`.${NS}-scroll`);
   S.ui.canvas = stage.querySelector(`.${NS}-canvas`);
   S.ui.paper = stage.querySelector(`.${NS}-paper`);
@@ -3815,8 +3727,11 @@ function buildShell() {
   S.ui.canvas.addEventListener("pointermove", onHoverMove);
   S.ui.canvas.addEventListener("contextmenu", openContextMenu);
   bindRulerGuides();
+  let lastW = 0;
   const ro = new ResizeObserver(() => {
-    if (S.pendingFit && S.doc) fitPage();
+    const w = stage.clientWidth;
+    if ((S.pendingFit || (lastW && Math.abs(w - lastW) > 40 && S.autoFit)) && S.doc) fitPage();
+    lastW = w;
     drawRulers();
   });
   ro.observe(stage);
@@ -3998,6 +3913,7 @@ function openToolGallery(tool, anchor) {
 // ---------------------------------------------------------------- zoom / scroll
 const CANVAS_PAD = 260;
 function setZoom(z, anchor) {
+  S.autoFit = false;
   const sc = S.ui.scroll;
   const old = S.zoom;
   z = clamp(z, 0.4, 30);
@@ -4018,6 +3934,7 @@ function setZoom(z, anchor) {
   renderGuides();
 }
 function fitPage() {
+  S.autoFit = true;
   const sc = S.ui.scroll;
   const pg = S.doc.page;
   // Not laid out yet (overlay just mounted or window hidden): fit once it has a size.
@@ -4028,7 +3945,7 @@ function fitPage() {
     return;
   }
   S.pendingFit = false;
-  const z = Math.min((sc.clientWidth - 60) / pg.width, (sc.clientHeight - 60) / pg.height);
+  const z = Math.min((sc.clientWidth - 48) / pg.width, (sc.clientHeight - 48) / pg.height);
   S.zoom = clamp(z, 0.4, 30);
   layoutCanvas();
   sc.scrollLeft = CANVAS_PAD + (pg.width * S.zoom) / 2 - sc.clientWidth / 2;
@@ -4045,6 +3962,8 @@ function layoutCanvas() {
   S.ui.canvas.style.width = `${pg.width * Z + CANVAS_PAD * 2}px`;
   S.ui.canvas.style.height = `${pg.height * Z + CANVAS_PAD * 2}px`;
   Object.assign(S.ui.paper.style, { left: `${CANVAS_PAD}px`, top: `${CANVAS_PAD}px`, width: `${pg.width * Z}px`, height: `${pg.height * Z}px` });
+  // page background, neatline and margin guides scale with the canvas
+  renderPageDecor();
 }
 function onWheel(e) {
   if (S.contentMode && e.target.closest(`.${NS}-item[data-id="${S.contentMode}"]`)) return; // map handles its own wheel
@@ -5483,6 +5402,36 @@ async function loadInstalledFonts() {
   toast(`${families.length} installed fonts available`);
   renderProps();
 }
+
+// ---- collapsible docks (left: items, right: properties)
+const DOCK_KEY = "glc:docks";
+function applyDocks() {
+  let d = {};
+  try {
+    d = JSON.parse(localStorage.getItem(DOCK_KEY) || "{}");
+  } catch {}
+  if (d.left == null) d.left = window.innerWidth >= 1100;
+  if (d.right == null) d.right = window.innerWidth >= 900;
+  S.ui.root.classList.toggle("hide-left", !d.left);
+  S.ui.root.classList.toggle("hide-right", !d.right);
+  for (const b of S.ui.root.querySelectorAll(`.${NS}-docktog`)) {
+    const side = b.title.includes("Items") ? "left" : "right";
+    b.classList.toggle("on", !!d[side]);
+  }
+  return d;
+}
+function toggleDock(side) {
+  const d = applyDocks();
+  d[side] = !d[side];
+  try {
+    localStorage.setItem(DOCK_KEY, JSON.stringify(d));
+  } catch {}
+  applyDocks();
+  requestAnimationFrame(() => {
+    drawRulers();
+    fitPage();
+  });
+}
 // ---------------------------------------------------------------- draw tools
 // Polyline / polygon: click points. Bézier pen: click for a corner, drag for a
 // smooth node. Freehand: drag. Shared keys: Shift = 45° steps, Enter or
@@ -6072,8 +6021,17 @@ function itemProps(item) {
         );
         break;
       }
+      const hist = viewHistory.get(item.id);
       out.push(
         section("Map View", [
+          el("div", { class: `${NS}-mapnav` },
+            iconBtn("zin", "Zoom map in", () => zoomMapBy(item, 2)),
+            iconBtn("zout", "Zoom map out", () => zoomMapBy(item, 0.5)),
+            iconBtn("fitlayers", "Fit all layers", () => fitAllLayers(item)),
+            iconBtn("undo", "Previous extent", () => stepMapView(item, -1), hist?.back.length ? "" : `${NS}-dim`),
+            iconBtn("redo", "Next extent", () => stepMapView(item, 1), hist?.fwd.length ? "" : `${NS}-dim`),
+            iconBtn("movecontent", "Move content tool (C)", () => setTool(S.tool === "content" ? "select" : "content"), S.tool === "content" ? `${NS}-on` : ""),
+          ),
           el("div", { class: `${NS}-btnrow` },
             btn("Match GeoLibre view", () => commit(() => viewFromGeoLibre(item) || toast("GeoLibre map not found", "warn")), { iconName: "sync", title: "Set this frame's extent to the current GeoLibre map view" }),
             btn(S.contentMode === item.id ? "Done panning" : "Pan map content", () => (S.contentMode === item.id ? exitContentMode() : enterContentMode(item.id)), { iconName: "pan", primary: S.contentMode === item.id }),
@@ -6328,7 +6286,7 @@ function itemProps(item) {
           })),
         ]),
         section("LaTeX & Symbols", [templateButtons(S.ui.textArea, { mathWrap: true }), symbolCatalog(S.ui.textArea, { mathWrap: true })], false),
-        section("Effects, Background & Border", [
+        section("Halo, Background & Border", [
           fCheck(item, P("halo"), "Text halo / outline"),
           el("div", { class: `${NS}-grid2` }, row("Halo color", fColor(item, P("haloColor"))), row("Halo width", fNum(item, P("haloWidth"), { min: 0, step: 0.1, unit: "mm" }))),
           row("Background", fColor(item, P("background"), { allowNone: true })),
@@ -6401,7 +6359,7 @@ function itemProps(item) {
     case "icon":
       out.push(
         section("Icon", [
-          el("p", { class: `${NS}-muted` }, `${ICON_SET_LABELS[p.set] || p.set} · ${p.name}${p.set === "rbi" ? "" : " (CC0)"}`),
+          el("p", { class: `${NS}-muted` }, `${ICON_SET_LABELS[p.set] || p.set} · ${p.name} (CC0)`),
           row("Color", fColor(item, P("color"))),
           row("Label", fText(item, P("label"), { placeholder: "Optional label" })),
           p.label ? row("Font", fFont(item, P("font"))) : null,
@@ -6776,28 +6734,19 @@ function renderQuickBar() {
   host.innerHTML = "";
   const items = selectedItems();
   const item = items.length === 1 ? items[0] : null;
-  if (item?.type === "map") {
-    host.style.display = "";
-    host.append(...mapQuickTools(item));
+  const isShape = item && (item.type === "shape" || item.type === "path");
+  const fp = item && ["text", "table"].includes(item.type) ? quickFontPath(item) : null;
+  host.style.display = fp || isShape ? "" : "none";
+  if (isShape) {
+    host.append(...shapeQuickTools(item));
     return;
   }
-  const fp = item && quickFontPath(item);
-  const isLatex = item?.type === "latex";
-  host.style.display = fp || isLatex ? "" : "none";
-  if (!fp && !isLatex) return;
+  if (!fp) return;
   const rerender = () => {
     refreshCanvas();
     renderProps();
     renderQuickBar();
   };
-  if (isLatex) {
-    host.append(
-      el("span", { class: `${NS}-qlabel` }, "Formula"),
-      fNum(item, "props.size", { min: 4, max: 200, step: 1, unit: "pt", after: rerender }),
-      fColor(item, "props.color", { after: rerender }),
-    );
-    return;
-  }
   const f = getPath(item, fp);
   const fam = el("select", { class: `${NS}-input ${NS}-qfam`, title: "Font" });
   const all = knownFonts();
@@ -6937,6 +6886,36 @@ function zoomToSelection() {
   sc.scrollLeft = CANVAS_PAD + (b.x + b.w / 2) * z - sc.clientWidth / 2;
   sc.scrollTop = CANVAS_PAD + (b.y + b.h / 2) * z - sc.clientHeight / 2;
   renderAll({ props: false });
+}
+
+// shape / drawing quick tools: fill, outline, width, line style, opacity, shadow
+function shapeQuickTools(item) {
+  const p = item.props;
+  const rer = () => {
+    refreshCanvas();
+    renderProps();
+  };
+  const closedPath = item.type === "path" ? p.closed : true;
+  const parts = [el("span", { class: `${NS}-qlabel` }, ITEM_TYPES[item.type].label)];
+  if (closedPath) parts.push(el("span", { class: `${NS}-qtag` }, "Fill"), fColor(item, "props.fill", { allowNone: true, after: rer }));
+  parts.push(el("span", { class: `${NS}-qtag` }, "Line"), fColor(item, "props.stroke", { after: rer }));
+  const w = el("input", { type: "number", class: `${NS}-input ${NS}-qsize`, value: p.strokeWidth, min: 0, step: 0.05, title: "Line width (mm)" });
+  w.addEventListener("input", () => {
+    const v = parseFloat(w.value);
+    if (v >= 0) liveSet(item, "props.strokeWidth", v, () => refreshCanvas());
+  });
+  parts.push(w);
+  const st = el("select", { class: `${NS}-input ${NS}-qcase`, title: "Line style" }, ...Object.entries(BORDER_STYLES).map(([v, l]) => el("option", { value: v, selected: p.strokeStyle === v }, l)));
+  st.addEventListener("change", () => liveSet(item, "props.strokeStyle", st.value, rer));
+  parts.push(st);
+  const op = el("input", { type: "range", class: `${NS}-range ${NS}-qop`, min: 0, max: 1, step: 0.05, value: item.opacity ?? 1, title: "Opacity" });
+  op.addEventListener("input", () => liveSet(item, "opacity", parseFloat(op.value), () => refreshCanvas()));
+  parts.push(el("span", { class: `${NS}-qtag` }, "Opacity"), op);
+  const fx = itemFx(item);
+  const sh = el("button", { type: "button", class: `${NS}-qbtn ${fx.shadow.on ? "active" : ""}`, title: "Drop shadow", html: icon("fx", 15) });
+  sh.addEventListener("click", () => liveSet(fx, "shadow.on", !fx.shadow.on, rer));
+  parts.push(sh);
+  return parts;
 }
 // ---------------------------------------------------------------- page size catalog + units
 // Sizes are stored in millimetres; pixel sizes convert at the page's px-per-inch.
@@ -7349,6 +7328,7 @@ function openComposer() {
       renderAll();
     });
   }
+  applyDocks();
   setTool("select");
   renderAll();
   requestAnimationFrame(() => fitPage());

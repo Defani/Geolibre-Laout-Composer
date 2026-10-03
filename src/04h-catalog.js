@@ -64,46 +64,18 @@ async function addIconItem(set, name) {
   }
 }
 
-// ---- catalog browser: Rupabumi pictograms (inline) + Maki / Temaki (CC0, jsDelivr)
-const ICON_SET_LABELS = { rbi: "Rupabumi", maki: "Maki", temaki: "Temaki" };
-function addRbiIcon(ic) {
-  const pg = S.doc.page;
-  const item = newItem("icon", pg.width / 2 - 5, pg.height / 2 - 5);
-  item.name = ic.name;
-  const color = /danau|sungai|air|rawa|laut|pantai|waduk|pelabuhan|dermaga/.test(ic.id) ? "#1f78b4" : /hutan|mangrove|kebun|sawah|semak|rumput/.test(ic.id) ? "#2e7d32" : /kontur|gunung|puncak|bukit|gua|lereng/.test(ic.id) ? "#8d5524" : "#111111";
-  Object.assign(item.props, { set: "rbi", name: ic.id, svg: ic.svg, viewBox: "0 0 24 24", color });
-  commit(() => S.doc.items.push(item));
-  select([item.id]);
-}
+// ---- catalog browser: Maki / Temaki (CC0, jsDelivr)
+const ICON_SET_LABELS = { maki: "Maki", temaki: "Temaki" };
 function openCatalog(anchor) {
   const tabs = el("div", { class: `${NS}-seg ${NS}-segfull` });
-  const search = el("input", { type: "search", class: `${NS}-input`, placeholder: "Search icons (danau, sungai, kontur, airport…)" });
+  const search = el("input", { type: "search", class: `${NS}-input`, placeholder: "Search icons (water, mountain, airport…)" });
   const body = el("div", { class: `${NS}-catbody` });
-  let tab = S.catalogTab && ICON_SET_LABELS[S.catalogTab] ? S.catalogTab : "rbi";
+  let tab = S.catalogTab && ICON_SET_LABELS[S.catalogTab] ? S.catalogTab : "maki";
   const draw = () => {
     S.catalogTab = tab;
     for (const b of tabs.children) b.classList.toggle("active", b.dataset.v === tab);
     body.innerHTML = "";
     const q = search.value.trim().toLowerCase();
-    if (tab === "rbi") {
-      body.append(el("p", { class: `${NS}-muted` }, "Topographic pictograms drawn for this plugin. Click to place; change the color on the right."));
-      const groups = [...new Set(RBI_ICONS.map((i) => i.group))];
-      for (const gname of groups) {
-        const list = RBI_ICONS.filter((i) => i.group === gname && (!q || i.name.toLowerCase().includes(q) || i.id.includes(q)));
-        if (!list.length) continue;
-        const grid = el("div", { class: `${NS}-icongrid ${NS}-rbigrid` });
-        for (const ic of list) {
-          const b = el("button", { type: "button", class: `${NS}-iconbtn`, title: ic.name, html: `<svg width="22" height="22" viewBox="0 0 24 24">${ic.svg}</svg><small>${esc(ic.name)}</small>` });
-          b.addEventListener("click", () => {
-            closePopover();
-            addRbiIcon(ic);
-          });
-          grid.appendChild(b);
-        }
-        body.appendChild(el("details", { class: `${NS}-catgrp`, open: true }, el("summary", {}, gname, el("small", {}, String(list.length))), grid));
-      }
-      return;
-    }
     const set = CATALOG.iconSets[tab];
     body.append(el("p", { class: `${NS}-muted` }, `${set.label} icons · ${set.license} (public domain). Click to place on the page.`));
     const order = ["Basic symbols", "Water & hydrology", "Terrain & nature", "Vegetation & forest", "Transport", "Government & public", "Health", "Education & culture", "Religion", "Tourism & recreation", "Sports", "Food & shops", "Utilities & industry", "Hazards & warnings", "Other"];

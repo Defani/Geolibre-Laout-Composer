@@ -175,28 +175,19 @@ function renderQuickBar() {
   host.innerHTML = "";
   const items = selectedItems();
   const item = items.length === 1 ? items[0] : null;
-  if (item?.type === "map") {
-    host.style.display = "";
-    host.append(...mapQuickTools(item));
+  const isShape = item && (item.type === "shape" || item.type === "path");
+  const fp = item && ["text", "table"].includes(item.type) ? quickFontPath(item) : null;
+  host.style.display = fp || isShape ? "" : "none";
+  if (isShape) {
+    host.append(...shapeQuickTools(item));
     return;
   }
-  const fp = item && quickFontPath(item);
-  const isLatex = item?.type === "latex";
-  host.style.display = fp || isLatex ? "" : "none";
-  if (!fp && !isLatex) return;
+  if (!fp) return;
   const rerender = () => {
     refreshCanvas();
     renderProps();
     renderQuickBar();
   };
-  if (isLatex) {
-    host.append(
-      el("span", { class: `${NS}-qlabel` }, "Formula"),
-      fNum(item, "props.size", { min: 4, max: 200, step: 1, unit: "pt", after: rerender }),
-      fColor(item, "props.color", { after: rerender }),
-    );
-    return;
-  }
   const f = getPath(item, fp);
   const fam = el("select", { class: `${NS}-input ${NS}-qfam`, title: "Font" });
   const all = knownFonts();
@@ -336,4 +327,34 @@ function zoomToSelection() {
   sc.scrollLeft = CANVAS_PAD + (b.x + b.w / 2) * z - sc.clientWidth / 2;
   sc.scrollTop = CANVAS_PAD + (b.y + b.h / 2) * z - sc.clientHeight / 2;
   renderAll({ props: false });
+}
+
+// shape / drawing quick tools: fill, outline, width, line style, opacity, shadow
+function shapeQuickTools(item) {
+  const p = item.props;
+  const rer = () => {
+    refreshCanvas();
+    renderProps();
+  };
+  const closedPath = item.type === "path" ? p.closed : true;
+  const parts = [el("span", { class: `${NS}-qlabel` }, ITEM_TYPES[item.type].label)];
+  if (closedPath) parts.push(el("span", { class: `${NS}-qtag` }, "Fill"), fColor(item, "props.fill", { allowNone: true, after: rer }));
+  parts.push(el("span", { class: `${NS}-qtag` }, "Line"), fColor(item, "props.stroke", { after: rer }));
+  const w = el("input", { type: "number", class: `${NS}-input ${NS}-qsize`, value: p.strokeWidth, min: 0, step: 0.05, title: "Line width (mm)" });
+  w.addEventListener("input", () => {
+    const v = parseFloat(w.value);
+    if (v >= 0) liveSet(item, "props.strokeWidth", v, () => refreshCanvas());
+  });
+  parts.push(w);
+  const st = el("select", { class: `${NS}-input ${NS}-qcase`, title: "Line style" }, ...Object.entries(BORDER_STYLES).map(([v, l]) => el("option", { value: v, selected: p.strokeStyle === v }, l)));
+  st.addEventListener("change", () => liveSet(item, "props.strokeStyle", st.value, rer));
+  parts.push(st);
+  const op = el("input", { type: "range", class: `${NS}-range ${NS}-qop`, min: 0, max: 1, step: 0.05, value: item.opacity ?? 1, title: "Opacity" });
+  op.addEventListener("input", () => liveSet(item, "opacity", parseFloat(op.value), () => refreshCanvas()));
+  parts.push(el("span", { class: `${NS}-qtag` }, "Opacity"), op);
+  const fx = itemFx(item);
+  const sh = el("button", { type: "button", class: `${NS}-qbtn ${fx.shadow.on ? "active" : ""}`, title: "Drop shadow", html: icon("fx", 15) });
+  sh.addEventListener("click", () => liveSet(fx, "shadow.on", !fx.shadow.on, rer));
+  parts.push(sh);
+  return parts;
 }

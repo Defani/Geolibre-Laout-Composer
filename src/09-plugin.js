@@ -57,6 +57,7 @@ function openComposer() {
       renderAll();
     });
   }
+  applyDocks();
   setTool("select");
   renderAll();
   requestAnimationFrame(() => fitPage());

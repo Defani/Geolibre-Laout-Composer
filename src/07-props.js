@@ -366,8 +366,17 @@ function itemProps(item) {
         );
         break;
       }
+      const hist = viewHistory.get(item.id);
       out.push(
         section("Map View", [
+          el("div", { class: `${NS}-mapnav` },
+            iconBtn("zin", "Zoom map in", () => zoomMapBy(item, 2)),
+            iconBtn("zout", "Zoom map out", () => zoomMapBy(item, 0.5)),
+            iconBtn("fitlayers", "Fit all layers", () => fitAllLayers(item)),
+            iconBtn("undo", "Previous extent", () => stepMapView(item, -1), hist?.back.length ? "" : `${NS}-dim`),
+            iconBtn("redo", "Next extent", () => stepMapView(item, 1), hist?.fwd.length ? "" : `${NS}-dim`),
+            iconBtn("movecontent", "Move content tool (C)", () => setTool(S.tool === "content" ? "select" : "content"), S.tool === "content" ? `${NS}-on` : ""),
+          ),
           el("div", { class: `${NS}-btnrow` },
             btn("Match GeoLibre view", () => commit(() => viewFromGeoLibre(item) || toast("GeoLibre map not found", "warn")), { iconName: "sync", title: "Set this frame's extent to the current GeoLibre map view" }),
             btn(S.contentMode === item.id ? "Done panning" : "Pan map content", () => (S.contentMode === item.id ? exitContentMode() : enterContentMode(item.id)), { iconName: "pan", primary: S.contentMode === item.id }),
@@ -622,7 +631,7 @@ function itemProps(item) {
           })),
         ]),
         section("LaTeX & Symbols", [templateButtons(S.ui.textArea, { mathWrap: true }), symbolCatalog(S.ui.textArea, { mathWrap: true })], false),
-        section("Effects, Background & Border", [
+        section("Halo, Background & Border", [
           fCheck(item, P("halo"), "Text halo / outline"),
           el("div", { class: `${NS}-grid2` }, row("Halo color", fColor(item, P("haloColor"))), row("Halo width", fNum(item, P("haloWidth"), { min: 0, step: 0.1, unit: "mm" }))),
           row("Background", fColor(item, P("background"), { allowNone: true })),
@@ -695,7 +704,7 @@ function itemProps(item) {
     case "icon":
       out.push(
         section("Icon", [
-          el("p", { class: `${NS}-muted` }, `${ICON_SET_LABELS[p.set] || p.set} · ${p.name}${p.set === "rbi" ? "" : " (CC0)"}`),
+          el("p", { class: `${NS}-muted` }, `${ICON_SET_LABELS[p.set] || p.set} · ${p.name} (CC0)`),
           row("Color", fColor(item, P("color"))),
           row("Label", fText(item, P("label"), { placeholder: "Optional label" })),
           p.label ? row("Font", fFont(item, P("font"))) : null,

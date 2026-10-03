@@ -414,3 +414,33 @@ async function loadInstalledFonts() {
   toast(`${families.length} installed fonts available`);
   renderProps();
 }
+
+// ---- collapsible docks (left: items, right: properties)
+const DOCK_KEY = "glc:docks";
+function applyDocks() {
+  let d = {};
+  try {
+    d = JSON.parse(localStorage.getItem(DOCK_KEY) || "{}");
+  } catch {}
+  if (d.left == null) d.left = window.innerWidth >= 1100;
+  if (d.right == null) d.right = window.innerWidth >= 900;
+  S.ui.root.classList.toggle("hide-left", !d.left);
+  S.ui.root.classList.toggle("hide-right", !d.right);
+  for (const b of S.ui.root.querySelectorAll(`.${NS}-docktog`)) {
+    const side = b.title.includes("Items") ? "left" : "right";
+    b.classList.toggle("on", !!d[side]);
+  }
+  return d;
+}
+function toggleDock(side) {
+  const d = applyDocks();
+  d[side] = !d[side];
+  try {
+    localStorage.setItem(DOCK_KEY, JSON.stringify(d));
+  } catch {}
+  applyDocks();
+  requestAnimationFrame(() => {
+    drawRulers();
+    fitPage();
+  });
+}

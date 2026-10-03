@@ -2,7 +2,7 @@
 
 **A QGIS-style print layout designer for [GeoLibre](https://plugins.geolibre.app)** — design publication-ready maps with map frames, coordinate grids, legends, matplotlib-style color bars, LaTeX formulas, icon catalogs and GeoPDF export, without leaving GeoLibre.
 
-![Version](https://img.shields.io/badge/version-1.2.0-0d99ff)
+![Version](https://img.shields.io/badge/version-1.3.0-0d99ff)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![GeoLibre plugin](https://img.shields.io/badge/GeoLibre-plugin-4e8a2e)
 ![Tag: cartography](https://img.shields.io/badge/tag-cartography-6a3d9a)
@@ -17,15 +17,16 @@
 
 Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani/Geolibre-Laout-Composer>
 
-![KLHK forest-area map built with Layout Composer](docs/img/klhk-kawasan-hutan-aceh.png)
+![Layout Composer editor](docs/img/ui-overview.png)
 
-*Forest-area map of Aceh laid out following SK MENLHK 399/2024 (map face left, margin information right, DMS grid in R190 G232 B255, Arial, "U" north arrow). The layout file is in [`examples/`](examples/kawasan-hutan-aceh-klhk.layout.json).*
+*The editor with a forest-area map of Aceh laid out following SK MENLHK 399/2024. The layout file is in [`examples/`](examples/kawasan-hutan-aceh-klhk.layout.json); the exported page is shown under [KLHK cartographic rules](#klhk-cartographic-rules).*
 
 ---
 
 ## Contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Install](#install)
 - [Quick start](#quick-start)
 - [Architecture](#architecture)
@@ -52,11 +53,34 @@ Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani
 | **North arrows** | 26 styles, follow map rotation, letter U/N. |
 | **Text & LaTeX** | Text boxes with variables (`{title}`, `{date}`, `{scale}`…), `$…$` math anywhere (text, legend, color bar title, markers), formula item with 104-symbol catalog, structure templates and recent formulas (MathJax 3, vector output). Quick text bar: font (incl. installed fonts), size, bold, italic, color, alignment, superscript/subscript. |
 | **Drawing** | Polyline, polygon, Bézier pen (click = corner, drag = curve), freehand (simplified + smoothed), arrow line; 33 shapes; fills: solid, gradient, hatch patterns (/ \ × − \| + ·); 6 dash styles. |
-| **Symbols** | Point markers with labels (12 symbols); **icon catalog** grouped by type: 51 original **Rupabumi pictograms** (lake, reservoir, river, flow direction, spring, waterfall, swamp, coastline, port, contour, index contour, mountain, volcano, peak, cave, forest, mangrove, plantation, rice field, road, railway, bridge, airport, settlement, government office, mosque, church, temple, school, hospital, cemetery, tower, lighthouse, boundaries, capitals…), Maki (215) and Temaki (557) icons. |
+| **Symbols** | Point markers with labels (12 symbols); **icon catalog** with Maki (215) and Temaki (557) icons grouped by type (water, terrain, vegetation, transport, public services, health, education, religion, tourism, sports, utilities, hazards…). |
 | **Effects** | Drop shadow and frosted glass (blurs the map behind; reproduced in exports) on any item. |
-| **Editing** | Top-bar insert menus (Text, Draw, Shape, Image, Symbols, Scale bar), contextual quick bar (text formatting; map zoom in/out, fit layers, zoom to layer, previous/next extent, scale), Move-content tool, item search, Figma-style selection (handles, rotation knob, size badge), hover outlines, multi-select, groups, align/distribute, lock/hide, rename, context menu, undo/redo, copy/paste, layers list. Round color wheel with brightness, hex, eyedropper, palette and recent colors. Light theme and soft neutral dark theme that follow GeoLibre. |
+| **Editing** | Top-bar insert menus (Text, Draw, Shape, Image, Symbols, Scale bar), floating contextual toolbar for text and shapes, map navigation in the map panel (zoom in/out, fit layers, zoom to layer, previous/next extent), Move-content tool, collapsible left/right docks, item search, Figma-style selection (handles, rotation knob, size badge), hover outlines, multi-select, groups, align/distribute, lock/hide, rename, context menu, undo/redo, copy/paste, layers list. Round color wheel with brightness, hex, eyedropper, palette and recent colors. Light theme and soft neutral dark theme that follow GeoLibre. |
 | **Layouts & templates** | Several layouts per project, autosave, save/open `.layout.json`, **save your own templates** and start new layouts from them (maps re-framed on the current GeoLibre view). |
 | **Export** | PNG/JPG (75–600 dpi, page/white/transparent background), raster PDF, **vector PDF**, **GeoPDF** (every map frame georeferenced, WGS 84), SVG. |
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Soft dark theme](docs/img/ui-overview-dark.png) | ![Floating text toolbar](docs/img/ui-text-toolbar.png) |
+| **Soft dark theme** | **Floating text toolbar** |
+| ![Map frame panel: navigation, scale, basemap, grid](docs/img/ui-map-panel.png) | ![matplotlib-style color bar](docs/img/ui-colorbar.png) |
+| **Map frame panel: navigation, scale, basemap, grid** | **matplotlib-style color bar** |
+| ![LaTeX, dual scale bar, hatch & gradient fills, frosted glass](docs/img/ui-features-dark.png) | ![Shape toolbar](docs/img/ui-shape-toolbar.png) |
+| **LaTeX, dual scale bar, hatch & gradient fills, frosted glass** | **Shape toolbar** |
+| ![Color wheel](docs/img/ui-color-wheel.png) | ![LaTeX formula and symbol catalog](docs/img/ui-latex.png) |
+| **Color wheel** | **LaTeX formula and symbol catalog** |
+| ![26 north arrows](docs/img/ui-north-arrows.png) | ![Shape library](docs/img/ui-shapes.png) |
+| **26 north arrows** | **Shape library** |
+| ![Draw tools](docs/img/ui-draw.png) | ![Scale bar styles](docs/img/ui-scale-bars.png) |
+| **Draw tools** | **Scale bar styles** |
+| ![Point markers](docs/img/ui-symbols.png) | ![Maki / Temaki icon catalog](docs/img/ui-icon-catalog.png) |
+| **Point markers** | **Maki / Temaki icon catalog** |
+| ![Page size catalog](docs/img/ui-page-sizes.png) | ![Export: PNG, JPG, PDF, vector PDF, GeoPDF, SVG](docs/img/ui-export.png) |
+| **Page size catalog** | **Export: PNG, JPG, PDF, vector PDF, GeoPDF, SVG** |
+| ![Context menu](docs/img/ui-context-menu.png) | ![Layouts and user templates](docs/img/ui-templates.png) |
+| **Context menu** | **Layouts and user templates** |
 
 ## Install
 
@@ -84,7 +108,7 @@ flowchart LR
     UI[Editor UI<br/>tool rail · canvas · rulers · panels]
     Items[Item renderers → SVG in mm<br/>map · legend · color bar · scale · north · text · LaTeX · shapes · paths · markers · icons · tables]
     Maps[Live map frames<br/>copied MapLibre style]
-    Cat[Catalogs<br/>Rupabumi pictograms · Maki · Temaki · paper sizes · colormaps]
+    Cat[Catalogs<br/>Maki · Temaki · paper sizes · colormaps]
     Exp[Export<br/>PNG · JPG · PDF · Vector PDF · GeoPDF · SVG]
   end
   GL --> API --> Core
@@ -155,7 +179,9 @@ The example layout follows **Keputusan Menteri LHK No. 399 Tahun 2024** (Spesifi
 | Forest functions | KSA/KPA 173 63 255 · HL 2 173 0 · HPT 138 242 0 · HP 255 255 0 · HPK 255 94 255 · APL 255 255 255 | Layer colors in the example; legend built automatically |
 | Paper size | Minimum sizes per scale (Table 1) | Page size catalog → Indonesia |
 
-The Rupabumi pictograms are original illustrative icons for layouts; for official topographic symbology follow **SNI 8743:2019**.
+For official topographic (Rupabumi) symbology follow **SNI 8743:2019**.
+
+![KLHK forest-area map exported from Layout Composer](docs/img/klhk-kawasan-hutan-aceh.png)
 
 ## Keyboard shortcuts
 
@@ -183,14 +209,14 @@ src/            sources, concatenated in order into plugin/index.js
   04-items.js       item types and SVG renderers
   04b-colorbar.js   matplotlib-style color bar + colormaps
   04c-latex.js      MathJax formulas, symbol catalog
-  04d…04i           fills/paths, dual scale bar, effects/markers, icon catalog data/UI, Rupabumi pictograms
+  04d…04h           fills/paths, dual scale bar, effects/markers, icon catalog data/UI
   05-maps.js        MapLibre frames, legend from styles, capture
   06-ui.js, 06b, 06c   editor shell, interactions, draw tools, templates
   07-props.js, 07b, 07c  property panels, color wheel + quick text bar, page sizes
   08-export.js      PNG/JPG/PDF/vector PDF/GeoPDF/SVG
   09-plugin.js      GeoLibre plugin entry
 plugin/         plugin.json, index.js (built), style.css
-tools/          build_catalog.py (groups Maki/Temaki icons by type), icon name lists
+tools/          build_catalog.py (groups Maki/Temaki icons by type), screenshots.py (README images)
 test/           index.html and klhk.html harnesses (MapLibre + mock GeoLibre API)
 examples/       sample layouts
 ```
@@ -213,7 +239,7 @@ Builds `plugin/index.js` and `geolibre-layout-composer.zip`. To test without Geo
 | svg2pdf.js 2.2.4 | Vector PDF (loaded on export) | [github.com/yWorks/svg2pdf.js](https://github.com/yWorks/svg2pdf.js), jsDelivr | MIT |
 | Maki 8.2.0 icons | Icon catalog | [github.com/mapbox/maki](https://github.com/mapbox/maki) | CC0-1.0 |
 | Temaki 5.13.0 icons | Icon catalog | [github.com/rapideditor/temaki](https://github.com/rapideditor/temaki) | CC0-1.0 |
-| UI icons, north arrows, shapes, scale bars, markers, Rupabumi pictograms | Editor and layout items | Original inline SVG drawn for this project | MIT (this project) |
+| UI icons, north arrows, shapes, scale bars, markers | Editor and layout items | Original inline SVG drawn for this project | MIT (this project) |
 | GeoPDF writer | ISO 32000 `/VP /Measure /GEO` | Ported from GIS Consultant Studio (same author) | MIT |
 | Viridis, Plasma, Inferno, Magma, Cividis | Colormaps | Matplotlib (van der Walt & Smith; Nuñez et al.) | CC0 |
 | Turbo | Colormap | Google AI (Anton Mikhailov) | Apache-2.0 |
