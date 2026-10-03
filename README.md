@@ -84,7 +84,7 @@ Author: **Defani Arman Alfitriansyah** · Repository: <https://github.com/Defani
 
 ## Install
 
-1. Download `geolibre-layout-composer.zip` from the [releases](https://github.com/Defani/Geolibre-Laout-Composer/releases) (or build it, see below).
+1. Download `geolibre-layout-composer.zip` 
 2. GeoLibre Desktop: copy the zip into `%APPDATA%\org.geolibre.desktop\plugins` (Windows) and restart GeoLibre — or install it from **Settings → Manage Plugins** once it is in the registry.
 3. Enable **Layout Composer** in the **Plugins** menu, then open it from **Layout → Open Layout Composer** or the layout button at the top right of the map.
 
