@@ -1,6 +1,6 @@
 # GeoLibre Layout Composer
 
-**A QGIS-style print layout designer for [GeoLibre](https://plugins.geolibre.app)** — design publication-ready maps with map frames, coordinate grids, legends, matplotlib-style color bars, LaTeX formulas, icon catalogs and GeoPDF export, without leaving GeoLibre.
+**Cartographic layout designer for [GeoLibre](https://plugins.geolibre.app)** — design publication-ready maps with map frames, coordinate grids, legends, matplotlib-style color bars, LaTeX formulas, icon catalogs and GeoPDF export, without leaving GeoLibre.
 
 ![Version](https://img.shields.io/badge/version-1.3.0-0d99ff)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
